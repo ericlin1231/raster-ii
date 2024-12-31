@@ -16,6 +16,7 @@
             nextpnr
             openfpgaloader
             sbt
+            scalafmt
             trellis
             yosys
           ];

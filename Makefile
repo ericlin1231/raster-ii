@@ -1,6 +1,10 @@
 .PHONY: all
 all: build/raster.bit
 
+.PHONY: fmt
+fmt:
+	@scalafmt
+
 build/Raster.sv: $(shell find src/main/scala -type f)
 	@sbt run
 

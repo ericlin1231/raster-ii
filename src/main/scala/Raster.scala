@@ -21,9 +21,9 @@ object Raster extends App {
     new Raster,
     args = Array("--target-dir", "build"),
     firtoolOpts = Array(
-        "--disable-all-randomization",
-        "--lowering-options=disallowLocalVariables",
-        "--strip-debug-info"
+      "--disable-all-randomization",
+      "--lowering-options=disallowLocalVariables",
+      "--strip-debug-info"
     )
   )
 }
