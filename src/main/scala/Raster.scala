@@ -7,7 +7,7 @@ class Raster extends Module {
     val led = Output(Bool())
   })
 
-  val led = RegInit(true.B)
+  val led = RegInit(false.B)
   val (_, counterWrap) = Counter(true.B, 12_500_000)
   when(counterWrap) {
     led := ~led
@@ -19,7 +19,11 @@ class Raster extends Module {
 object Raster extends App {
   ChiselStage.emitSystemVerilogFile(
     new Raster,
-    args = Array("--target-dir", "generated"),
-    firtoolOpts = Array("-disable-all-randomization", "-strip-debug-info")
+    args = Array("--target-dir", "build"),
+    firtoolOpts = Array(
+        "--disable-all-randomization",
+        "--lowering-options=disallowLocalVariables",
+        "--strip-debug-info"
+    )
   )
 }
