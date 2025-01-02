@@ -1,2 +1,0 @@
-read_verilog synth/top.v build/Raster.sv
-synth_ecp5 -json build/raster.json

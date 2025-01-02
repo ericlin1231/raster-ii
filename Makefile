@@ -1,28 +1,25 @@
+BUILDDIR ?= build
+TARGET ?= ulx3s
+
 .PHONY: all
-all: build/raster.bit
+all: $(BUILDDIR)/$(TARGET)/raster.bit
 
 .PHONY: fmt
 fmt:
 	@scalafmt
 
-build/Raster.sv: $(shell find src/main/scala -type f)
+$(BUILDDIR)/Raster.sv: $(shell find src/main/scala -type f)
 	@sbt run
 
-build/raster.json: synth/raster.ys synth/top.v build/Raster.sv
-	@yosys $<
+$(BUILDDIR)/$(TARGET):
+	@mkdir -p $(BUILDDIR)/$(TARGET)
 
-build/raster.config: build/raster.json synth/ulx3s_v20.lpf
-	@nextpnr-ecp5 --85k \
-		--json $(word 1,$^) \
-		--lpf $(word 2,$^) \
-		--textcfg $@
-
-build/raster.bit: build/raster.config
-	@ecppack $< $@
+$(BUILDDIR)/$(TARGET)/raster.bit: $(BUILDDIR)/Raster.sv | $(BUILDDIR)/$(TARGET)
+	@make -C synth/$(TARGET) BUILDDIR=$(CURDIR)/build/$(TARGET)
 
 .PHONY: prog
-prog:
-	@openFPGALoader -b ulx3s build/raster.bit
+prog: $(BUILDDIR)/Raster.sv | $(BUILDDIR)/$(TARGET)
+	@make -C synth/$(TARGET) prog BUILDDIR=$(CURDIR)/build/$(TARGET)
 
 .PHONY: clean
 clean:
