@@ -10,7 +10,7 @@ $(BUILDDIR)/raster.config: $(BUILDDIR)/raster.json ulx3s.lpf
 		--textcfg $@
 
 $(BUILDDIR)/raster.bit: $(BUILDDIR)/raster.config
-	@ecppack $< $@
+	@ecppack $< $@ --compress
 
 .PHONY: prog
 prog: $(BUILDDIR)/raster.bit
