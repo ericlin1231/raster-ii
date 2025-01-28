@@ -30,7 +30,7 @@
             yosys
           ];
           shellHook = ''
-            export CHISEL_FIRTOOL_PATH=$(nix eval nixpkgs#circt.outPath --raw)/bin
+            export CHISEL_FIRTOOL_PATH=${pkgs.circt.outPath}/bin
           '';
         };
       }
