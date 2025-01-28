@@ -2,3 +2,8 @@
 build/
 generated/
 target/
+
+.bloop/
+.metals/
+.vscode/
+metals.sbt
