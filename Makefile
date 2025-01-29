@@ -14,6 +14,7 @@ $(BUILDDIR)/Raster.sv: $(shell find src/main/scala -type f)
 $(BUILDDIR)/$(TARGET):
 	@mkdir -p $(BUILDDIR)/$(TARGET)
 
+.PHONY: $(BUILDDIR)/$(TARGET)/raster.bit
 $(BUILDDIR)/$(TARGET)/raster.bit: $(BUILDDIR)/Raster.sv | $(BUILDDIR)/$(TARGET)
 	@make -C synth/$(TARGET) BUILDDIR=$(CURDIR)/build/$(TARGET)
 
