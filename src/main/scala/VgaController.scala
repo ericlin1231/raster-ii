@@ -43,6 +43,6 @@ class VgaController(timing: VgaTiming) extends Module {
   io.y := yReg
 
   io.hsync := ~(hsyncStart.U <= xReg && xReg < hsyncEnd.U)
-  io.vsync := ~(vsyncStart.U <= yReg && yReg < vsyncStart.U)
+  io.vsync := ~(vsyncStart.U <= yReg && yReg < vsyncEnd.U)
   io.de := xReg < timing.hactive.U && yReg < timing.vactive.U
 }
