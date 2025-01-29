@@ -26,7 +26,9 @@
             openfpgaloader
             sbt
             scalafmt
+            sdl3
             trellis
+            verilator
             yosys
           ];
           shellHook = ''
