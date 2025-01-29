@@ -1,6 +1,6 @@
 all: $(BUILDDIR)/raster.bit
 
-$(BUILDDIR)/raster.json: raster.tcl top.v
+$(BUILDDIR)/raster.json: raster.tcl top.v $(BUILDDIR)/../Raster.sv
 	@yosys -c $<
 
 $(BUILDDIR)/raster.config: $(BUILDDIR)/raster.json ulx3s.lpf
