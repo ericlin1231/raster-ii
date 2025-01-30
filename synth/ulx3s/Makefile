@@ -12,6 +12,5 @@ $(BUILDDIR)/raster.config: $(BUILDDIR)/raster.json ulx3s.lpf
 $(BUILDDIR)/raster.bit: $(BUILDDIR)/raster.config
 	@ecppack $< $@ --compress
 
-.PHONY: prog
 prog: $(BUILDDIR)/raster.bit
 	@openFPGALoader -b ulx3s $(BUILDDIR)/raster.bit

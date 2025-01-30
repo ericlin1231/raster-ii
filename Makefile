@@ -1,10 +1,8 @@
 BUILDDIR ?= build
 TARGET ?= ulx3s
 
-.PHONY: all
-all: $(BUILDDIR)/$(TARGET)/raster.bit
+all: bitstream
 
-.PHONY: fmt
 fmt:
 	@scalafmt
 
@@ -14,14 +12,11 @@ $(BUILDDIR)/Raster.sv: $(shell find src/main/scala -type f)
 $(BUILDDIR)/$(TARGET):
 	@mkdir -p $(BUILDDIR)/$(TARGET)
 
-.PHONY: $(BUILDDIR)/$(TARGET)/raster.bit
-$(BUILDDIR)/$(TARGET)/raster.bit: $(BUILDDIR)/Raster.sv | $(BUILDDIR)/$(TARGET)
-	@make -C synth/$(TARGET) BUILDDIR=$(CURDIR)/build/$(TARGET)
+bitstream: $(BUILDDIR)/Raster.sv $(BUILDDIR)/$(TARGET)
+	@make -C synth/$(TARGET) BUILDDIR=$(CURDIR)/$(BUILDDIR)/$(TARGET)
 
-.PHONY: prog
-prog: $(BUILDDIR)/Raster.sv | $(BUILDDIR)/$(TARGET)
-	@make -C synth/$(TARGET) prog BUILDDIR=$(CURDIR)/build/$(TARGET)
+prog: $(BUILDDIR)/Raster.sv $(BUILDDIR)/$(TARGET)
+	@make -C synth/$(TARGET) prog BUILDDIR=$(CURDIR)/$(BUILDDIR)/$(TARGET)
 
-.PHONY: clean
 clean:
-	@rm -rf build
+	@rm -rf $(BUILDDIR)
