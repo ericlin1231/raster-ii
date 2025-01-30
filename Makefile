@@ -9,8 +9,12 @@ fmt:
 $(BUILDDIR)/Raster.sv: $(shell find src/main/scala -type f)
 	@sbt run
 
-$(BUILDDIR)/$(TARGET):
-	@mkdir -p $(BUILDDIR)/$(TARGET)
+$(BUILDDIR)/%:
+	@mkdir -p $@
+
+.PHONY: sim
+sim: $(BUILDDIR)/Raster.sv $(BUILDDIR)/sim
+	@make -C sim run BUILDDIR=$(CURDIR)/$(BUILDDIR)/sim
 
 bitstream: $(BUILDDIR)/Raster.sv $(BUILDDIR)/$(TARGET)
 	@make -C synth/$(TARGET) BUILDDIR=$(CURDIR)/$(BUILDDIR)/$(TARGET)

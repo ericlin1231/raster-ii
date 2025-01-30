@@ -4,7 +4,8 @@ $(BUILDDIR)/raster.json: raster.tcl top.v $(BUILDDIR)/../Raster.sv
 	@yosys -c $<
 
 $(BUILDDIR)/raster.config: $(BUILDDIR)/raster.json ulx3s.lpf
-	@nextpnr-ecp5 --85k \
+	@nextpnr-ecp5 \
+		--85k \
 		--json $(word 1,$^) \
 		--lpf $(word 2,$^) \
 		--textcfg $@
