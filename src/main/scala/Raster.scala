@@ -31,35 +31,20 @@ class Raster extends Module {
   val vgaController = Module(new VgaController(vgaTiming))
   val x = vgaController.io.x
   val y = vgaController.io.y
-  val de = vgaController.io.de
-  io.vga.hsync := vgaController.io.hsync
-  io.vga.vsync := vgaController.io.vsync
-  io.x := x
-  io.y := y
+  val de = RegNext(vgaController.io.de)
+  io.vga.hsync := RegNext(vgaController.io.hsync)
+  io.vga.vsync := RegNext(vgaController.io.vsync)
+  io.x := RegNext(x)
+  io.y := RegNext(y)
   io.de := de
 
-  val rCntReg = RegInit(0.U(log2Up(40).W))
-  val rReg = RegInit(0.U(4.W))
-  val gCntReg = RegInit(0.U(log2Up(30).W))
-  val gReg = RegInit(0.U(4.W))
-  when(de) {
-    rCntReg := rCntReg + 1.U
-    when(rCntReg === 39.U) {
-      rCntReg := 0.U
-      rReg := rReg + 1.U
-    }
+  val framebuffer =
+    SyncReadMem(vgaTiming.hactive * vgaTiming.vactive, Vec(3, UInt(4.W)))
 
-    when(x === (vgaTiming.hactive - 1).U) {
-      gCntReg := gCntReg + 1.U
-      when(gCntReg === 29.U) {
-        gCntReg := 0.U
-        gReg := gReg + 1.U
-      }
-    }
-  }
-  io.vga.r := Mux(de, rReg, 0.U)
-  io.vga.g := Mux(de, gReg, 0.U)
-  io.vga.b := 0.U
+  val pix = framebuffer.read(vgaTiming.hactive.U * y + x)
+  io.vga.r := Mux(de, pix(0), 0.U)
+  io.vga.g := Mux(de, pix(1), 0.U)
+  io.vga.b := Mux(de, pix(2), 0.U)
 }
 
 object Raster extends App {

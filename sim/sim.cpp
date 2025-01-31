@@ -1,3 +1,6 @@
+#include <memory>
+#include <vector>
+
 #include <SDL3/SDL.h>
 #include <verilated.h>
 
@@ -23,14 +26,14 @@ int main(int argc, char** argv) {
     raster->reset = 0;
     raster->eval();
 
-    constexpr int WIDTH = 640;
-    constexpr int HEIGHT = 480;
+    const int WIDTH = 640;
+    const int HEIGHT = 480;
     SDL_Init(SDL_INIT_VIDEO);
     auto window = SDL_CreateWindow("Raster II Simulator", WIDTH, HEIGHT, 0);
     auto renderer = SDL_CreateRenderer(window, nullptr);
     auto texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
 
-    RGBA framebuffer[WIDTH * HEIGHT];
+    std::vector<RGBA> framebuffer(WIDTH * HEIGHT);
     while (true) {
         if (raster->io_de) {
             RGBA &pix = framebuffer[WIDTH * raster->io_y + raster->io_x];
@@ -48,7 +51,7 @@ int main(int argc, char** argv) {
                 }
             }
 
-            SDL_UpdateTexture(texture, nullptr, framebuffer, WIDTH * sizeof(RGBA));
+            SDL_UpdateTexture(texture, nullptr, framebuffer.data(), WIDTH * sizeof(RGBA));
             SDL_RenderClear(renderer);
             SDL_RenderTexture(renderer, texture, nullptr, nullptr);
             SDL_RenderPresent(renderer);
