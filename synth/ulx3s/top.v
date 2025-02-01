@@ -1,16 +1,14 @@
-module clock_gen #(
-  parameter CLKI_DIV  = 1,
-  parameter CLKFB_DIV = 1,
-  parameter CLKOP_DIV = 1,
-  parameter CLKOP_CPHASE = 0
-) (
-  input  wire clk_in,
-  output wire clk_out,
-  output reg  clk_locked
+module top(
+  input clk_25mhz,
+  input [6:0] btn,
+  output [7:0] led,
+  output [13:0] gp,
+  output [13:0] gn,
 );
 
-  wire locked;
-
+  wire clk_125mhz;
+  (* FREQUENCY_PIN_CLKI="25" *)
+  (* FREQUENCY_PIN_CLKOP="125" *)
   (* ICP_CURRENT="12" *)
   (* LPF_RESISTOR="8" *)
   (* MFG_ENABLE_FILTEROPAMP="1" *)
@@ -24,19 +22,19 @@ module clock_gen #(
     .OUTDIVIDER_MUXB("DIVB"),
     .OUTDIVIDER_MUXC("DIVC"),
     .OUTDIVIDER_MUXD("DIVD"),
-    .CLKI_DIV(CLKI_DIV),
+    .CLKI_DIV(1),
     .CLKOP_ENABLE("ENABLED"),
-    .CLKOP_DIV(CLKOP_DIV),
-    .CLKOP_CPHASE(CLKOP_CPHASE),
+    .CLKOP_DIV(5),
+    .CLKOP_CPHASE(2),
     .CLKOP_FPHASE(0),
     .FEEDBK_PATH("CLKOP"),
-    .CLKFB_DIV(CLKFB_DIV)
+    .CLKFB_DIV(5)
   ) pll_i (
     .RST(1'b0),
     .STDBY(1'b0),
-    .CLKI(clk_in),
-    .CLKOP(clk_out),
-    .CLKFB(clk_out),
+    .CLKI(clk_25mhz),
+    .CLKOP(clk_125mhz),
+    .CLKFB(clk_125mhz),
     .CLKINTFB(),
     .PHASESEL0(1'b0),
     .PHASESEL1(1'b0),
@@ -45,35 +43,7 @@ module clock_gen #(
     .PHASELOADREG(1'b1),
     .PLLWAKESYNC(1'b0),
     .ENCLKOP(1'b0),
-    .LOCK(locked)
-  );
-
-  reg locked_sync;
-  always @(posedge clk_out) begin
-    locked_sync <= locked;
-    clk_locked <= locked_sync;
-  end
-
-endmodule
-
-module top(
-  input clk_25mhz,
-  input [6:0] btn,
-  output [7:0] led,
-  output [13:0] gp,
-  output [13:0] gn,
-);
-
-  wire clk_125mhz;
-  clock_gen #(
-    .CLKI_DIV(1),
-    .CLKFB_DIV(5),
-    .CLKOP_DIV(5),
-    .CLKOP_CPHASE(0)
-  ) clock_gen_inst(
-    .clk_in(clk_25mhz),
-    .clk_out(clk_125mhz),
-    .clk_locked()
+    .LOCK()
   );
 
   reg [31:0] cnt = 0;
