@@ -35,15 +35,15 @@ int main(int argc, char** argv) {
 
     std::vector<RGBA> framebuffer(WIDTH * HEIGHT);
     while (true) {
-        if (raster->io_de) {
-            RGBA &pix = framebuffer[WIDTH * raster->io_y + raster->io_x];
-            pix.r = raster->io_vga_r << 4;
-            pix.g = raster->io_vga_g << 4;
-            pix.b = raster->io_vga_b << 4;
+        if (raster->io_ctrl_de) {
+            RGBA &pix = framebuffer[WIDTH * raster->io_ctrl_y + raster->io_ctrl_x];
+            pix.r = raster->io_r << 4;
+            pix.g = raster->io_g << 4;
+            pix.b = raster->io_b << 4;
             pix.a = 0xFF;
         }
 
-        if (raster->io_x == 0 && raster->io_y == HEIGHT) {
+        if (raster->io_ctrl_x == 0 && raster->io_ctrl_y == HEIGHT) {
             SDL_Event event;
             if (SDL_PollEvent(&event)) {
                 if (event.type == SDL_EVENT_QUIT) {

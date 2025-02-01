@@ -63,11 +63,14 @@ module top(
   Raster raster(
     .clock(clk_25mhz),
     .reset(~btn[0]),
-    .io_vga_r(r),
-    .io_vga_g(g),
-    .io_vga_b(b),
-    .io_vga_hsync(gp[3]),
-    .io_vga_vsync(gp[2]),
+    .io_r(r),
+    .io_g(g),
+    .io_b(b),
+    .io_ctrl_x(),
+    .io_ctrl_y(),
+    .io_ctrl_hsync(gp[3]),
+    .io_ctrl_vsync(gp[2]),
+    .io_ctrl_de()
   );
   assign gn[10:7] = {r[0], r[1], r[2], r[3]};
   assign gn[3:0] = {g[0], g[1], g[2], g[3]};

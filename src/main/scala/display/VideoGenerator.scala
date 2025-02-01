@@ -1,7 +1,9 @@
+package display
+
 import chisel3._
 import chisel3.util._
 
-case class VgaTiming(
+case class VideoTiming(
     hactive: Int,
     hfront: Int,
     hsync: Int,
@@ -12,7 +14,19 @@ case class VgaTiming(
     vback: Int
 )
 
-class VgaController(timing: VgaTiming) extends Module {
+class VideoCtrlSignals extends Bundle {
+  val x = Output(UInt())
+  val y = Output(UInt())
+  val hsync = Output(Bool())
+  val vsync = Output(Bool())
+  val de = Output(Bool())
+}
+
+class VideoGenerator(timing: VideoTiming) extends Module {
+  val io = IO(new Bundle {
+    val ctrl = Output(new VideoCtrlSignals)
+  })
+
   val hsyncStart = timing.hactive + timing.hfront
   val hsyncEnd = hsyncStart + timing.hsync
   val horizEnd = hsyncEnd + timing.hback
@@ -20,14 +34,6 @@ class VgaController(timing: VgaTiming) extends Module {
   val vsyncStart = timing.vactive + timing.vfront
   val vsyncEnd = vsyncStart + timing.vsync
   val vertiEnd = vsyncEnd + timing.vback
-
-  val io = IO(new Bundle {
-    val x = Output(UInt(log2Up(horizEnd).W))
-    val y = Output(UInt(log2Up(vertiEnd).W))
-    val hsync = Output(Bool())
-    val vsync = Output(Bool())
-    val de = Output(Bool())
-  })
 
   val xReg = RegInit(0.U(log2Up(horizEnd).W))
   val yReg = RegInit(0.U(log2Up(vertiEnd).W))
@@ -39,10 +45,10 @@ class VgaController(timing: VgaTiming) extends Module {
       yReg := 0.U
     }
   }
-  io.x := xReg
-  io.y := yReg
+  io.ctrl.x := xReg
+  io.ctrl.y := yReg
 
-  io.hsync := ~(hsyncStart.U <= xReg && xReg < hsyncEnd.U)
-  io.vsync := ~(vsyncStart.U <= yReg && yReg < vsyncEnd.U)
-  io.de := xReg < timing.hactive.U && yReg < timing.vactive.U
+  io.ctrl.hsync := ~(hsyncStart.U <= xReg && xReg < hsyncEnd.U)
+  io.ctrl.vsync := ~(vsyncStart.U <= yReg && yReg < vsyncEnd.U)
+  io.ctrl.de := xReg < timing.hactive.U && yReg < timing.vactive.U
 }

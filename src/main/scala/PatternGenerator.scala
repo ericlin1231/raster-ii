@@ -4,7 +4,7 @@ import chisel3.util._
 class PatternGenerator(width: Int, height: Int) extends Module {
   val io = IO(new Bundle {
     val addr = Output(UInt(log2Up(width * height).W))
-    val data = Output(Vec(3, UInt(4.W)))
+    val data = Output(UInt(8.W))
   })
 
   val addrReg = RegInit(0.U(log2Up(width * height).W))
@@ -27,11 +27,6 @@ class PatternGenerator(width: Int, height: Int) extends Module {
     }
   }
 
-  val pix = Wire(Vec(3, UInt(4.W)))
-  pix(0) := rReg
-  pix(1) := gReg
-  pix(2) := 0.U
-
   io.addr := addrReg
-  io.data := pix
+  io.data := rReg ## gReg
 }
