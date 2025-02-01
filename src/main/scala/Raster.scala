@@ -53,20 +53,25 @@ class Raster extends Module {
     vback = 33
   )
   val vgaController = Module(new VgaController(vgaTiming))
-  val x = vgaController.io.x
-  val y = vgaController.io.y
   val de = RegNext(vgaController.io.de)
   io.vga.hsync := RegNext(vgaController.io.hsync)
   io.vga.vsync := RegNext(vgaController.io.vsync)
-  io.x := RegNext(x)
-  io.y := RegNext(y)
+  io.x := RegNext(vgaController.io.x)
+  io.y := RegNext(vgaController.io.y)
   io.de := de
 
   val width = vgaTiming.hactive
   val height = vgaTiming.vactive
   val framebuffer = SyncReadMem(width * height, Vec(3, UInt(4.W)))
 
-  val pix = framebuffer.read(vgaTiming.hactive.U * y + x)
+  val addrReg = RegInit(0.U(log2Up(width * height).W))
+  when (vgaController.io.de) {
+    addrReg := addrReg + 1.U
+    when (addrReg === (width * height - 1).U) {
+      addrReg := 0.U
+    }
+  }
+  val pix = framebuffer.read(addrReg)
   io.vga.r := Mux(de, pix(0), 0.U)
   io.vga.g := Mux(de, pix(1), 0.U)
   io.vga.b := Mux(de, pix(2), 0.U)
