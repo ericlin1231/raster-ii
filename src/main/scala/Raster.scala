@@ -10,30 +10,6 @@ class Vga extends Bundle {
   val vsync = Bool()
 }
 
-class PatternGenerator(width: Int, height: Int) extends Module {
-  val io = IO(new Bundle {
-    val addr = Output(UInt(log2Up(width * height).W))
-    val data = Output(Vec(3, UInt(4.W)))
-  })
-
-  val xReg = RegInit(0.U(log2Up(width).W))
-  val yReg = RegInit(0.U(log2Up(height).W))
-  xReg := xReg + 1.U
-  when(xReg === width.U) {
-    xReg := 0.U
-    yReg := yReg + 1.U
-    when(yReg === height.U) {
-      yReg := 0.U
-    }
-  }
-  val pix = Wire(Vec(3, UInt(4.W)))
-  pix(0) := xReg / 40.U
-  pix(1) := yReg / 30.U
-  pix(2) := 0.U
-  io.addr := width.U * yReg + xReg
-  io.data := pix
-}
-
 class Raster extends Module {
   val io = IO(new Bundle {
     val vga = Output(new Vga)
@@ -65,9 +41,9 @@ class Raster extends Module {
   val framebuffer = SyncReadMem(width * height, Vec(3, UInt(4.W)))
 
   val addrReg = RegInit(0.U(log2Up(width * height).W))
-  when (vgaController.io.de) {
+  when(vgaController.io.de) {
     addrReg := addrReg + 1.U
-    when (addrReg === (width * height - 1).U) {
+    when(addrReg === (width * height - 1).U) {
       addrReg := 0.U
     }
   }
