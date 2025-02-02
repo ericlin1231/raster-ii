@@ -1,7 +1,7 @@
 BUILDDIR ?= build
 TARGET ?= ulx3s
 
-all: bitstream
+all: synth
 
 fmt:
 	@scalafmt
@@ -16,7 +16,7 @@ $(BUILDDIR)/%:
 sim: $(BUILDDIR)/Raster.sv $(BUILDDIR)/sim
 	@make -C sim run BUILDDIR=$(CURDIR)/$(BUILDDIR)/sim
 
-bitstream: $(BUILDDIR)/Raster.sv $(BUILDDIR)/$(TARGET)
+synth: $(BUILDDIR)/Raster.sv $(BUILDDIR)/$(TARGET)
 	@make -C synth/$(TARGET) BUILDDIR=$(CURDIR)/$(BUILDDIR)/$(TARGET)
 
 prog: $(BUILDDIR)/Raster.sv $(BUILDDIR)/$(TARGET)
