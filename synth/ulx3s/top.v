@@ -57,9 +57,9 @@ module top(
   end
   assign led = led_status;
 
-  reg [3:0] r;
-  reg [3:0] g;
-  reg [3:0] b;
+  wire [3:0] r;
+  wire [3:0] g;
+  wire [3:0] b;
   Raster raster(
     .clock(clk_25mhz),
     .reset(~btn[0]),

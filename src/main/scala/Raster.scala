@@ -25,10 +25,10 @@ class Raster extends Module {
 
   val displayController = Module(new DisplayController(videoTiming))
   displayController.io.rdData := framebuffer.read(displayController.io.rdAddr)
-  io.r := displayController.io.r
-  io.g := displayController.io.g
-  io.b := displayController.io.b
-  io.ctrl := displayController.io.ctrl
+  io.r := RegNext(displayController.io.r)
+  io.g := RegNext(displayController.io.g)
+  io.b := RegNext(displayController.io.b)
+  io.ctrl := RegNext(displayController.io.ctrl)
 
   val patternGenerator = Module(new PatternGenerator(width, height))
   framebuffer.write(patternGenerator.io.addr, patternGenerator.io.data)
