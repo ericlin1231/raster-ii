@@ -24,8 +24,8 @@ class DisplayController(timing: VideoTiming) extends Module {
   }
   io.rdAddr := addrReg
 
-  io.r := Mux(RegNext(de), io.rdData(3, 0), 0.U)
-  io.g := Mux(RegNext(de), io.rdData(7, 4), 0.U)
+  io.r := Mux(RegNext(de), io.rdData(3, 0) << 4, 0.U)
+  io.g := Mux(RegNext(de), io.rdData(7, 4) << 4, 0.U)
   io.b := Mux(RegNext(de), 0.U, 0.U)
 
   val videoGenerator = Module(new VideoGenerator(timing))

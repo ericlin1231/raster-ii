@@ -37,9 +37,9 @@ int main(int argc, char** argv) {
     while (true) {
         if (raster->io_ctrl_de) {
             RGBA &pix = framebuffer[WIDTH * raster->io_ctrl_y + raster->io_ctrl_x];
-            pix.r = raster->io_r << 4;
-            pix.g = raster->io_g << 4;
-            pix.b = raster->io_b << 4;
+            pix.r = raster->io_r;
+            pix.g = raster->io_g;
+            pix.b = raster->io_b;
             pix.a = 0xFF;
         }
 
