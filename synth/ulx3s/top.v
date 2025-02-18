@@ -1,10 +1,23 @@
 module top(
   input clk_25mhz,
-  input [6:0] btn,
-  output [7:0] led,
-  output [13:0] gp,
-  output [13:0] gn,
+  input btn_pwrn,
+  output [3:0] gpdi_dp
 );
+
+  wire [7:0] r, g, b;
+  wire hsync, vsync, de;
+  Raster raster(
+    .clock(clk_25mhz),
+    .reset(~btn[0]),
+    .io_r(r),
+    .io_g(g),
+    .io_b(b),
+    .io_ctrl_x(),
+    .io_ctrl_y(),
+    .io_ctrl_hsync(hsync),
+    .io_ctrl_vsync(vsync),
+    .io_ctrl_de(de)
+  );
 
   wire clk_125mhz;
   (* FREQUENCY_PIN_CLKI="25" *)
@@ -29,7 +42,7 @@ module top(
     .CLKOP_FPHASE(0),
     .FEEDBK_PATH("CLKOP"),
     .CLKFB_DIV(5)
-  ) pll_i (
+  ) pll (
     .RST(1'b0),
     .STDBY(1'b0),
     .CLKI(clk_25mhz),
@@ -46,34 +59,59 @@ module top(
     .LOCK()
   );
 
-  reg [31:0] cnt = 0;
-  reg led_status = 0;
-  always @(posedge clk_125mhz) begin
-    cnt <= cnt + 1;
-    if (cnt == 125000000) begin
-      led_status <= ~led_status;
-      cnt <= 0;
-    end
-  end
-  assign led = led_status;
-
-  wire [3:0] r;
-  wire [3:0] g;
-  wire [3:0] b;
-  Raster raster(
-    .clock(clk_25mhz),
-    .reset(~btn[0]),
-    .io_r(r),
-    .io_g(g),
-    .io_b(b),
-    .io_ctrl_x(),
-    .io_ctrl_y(),
-    .io_ctrl_hsync(gp[3]),
-    .io_ctrl_vsync(gp[2]),
-    .io_ctrl_de()
+  wire [9:0] tmds_r, tmds_g, tmds_b;
+  tmds_encoder tmds_encoder_r(
+    .clk(clk_25mhz),
+    .data(r),
+    .ctrl({vsync, hsync}),
+    .de(de),
+    .tmds(tmds_r)
   );
-  assign gn[10:7] = {r[0], r[1], r[2], r[3]};
-  assign gn[3:0] = {g[0], g[1], g[2], g[3]};
-  assign gp[10:7] = {b[0], b[1], b[2], b[3]};
+  tmds_encoder tmds_encoder_g(
+    .clk(clk_25mhz),
+    .data(g),
+    .ctrl(2'b00),
+    .de(de),
+    .tmds(tmds_g)
+  );
+  tmds_encoder tmds_encoder_b(
+    .clk(clk_25mhz),
+    .data(b),
+    .ctrl(2'b00),
+    .de(de),
+    .tmds(tmds_b)
+  );
+
+  reg [9:0] tmds_shift_r, tmds_shift_g, tmds_shift_b;
+  reg [4:0] tmds_shift = 1;
+  always @(posedge clk_125mhz) begin
+    tmds_shift <= {tmds_shift[3:0], tmds_shift[4]};
+    tmds_shift_r <= tmds_shift[4] ? tmds_r : tmds_shift_r >> 2;
+    tmds_shift_g <= tmds_shift[4] ? tmds_g : tmds_shift_g >> 2;
+    tmds_shift_b <= tmds_shift[4] ? tmds_b : tmds_shift_b >> 2;
+  end
+
+  ODDRX1F ddr_r(
+    .D0(tmds_shift_r[0]),
+    .D1(tmds_shift_r[1]),
+    .SCLK(clk_125mhz),
+    .RST(0),
+    .Q(gpdi_dp[2])
+  );
+  ODDRX1F ddr_g(
+    .D0(tmds_shift_g[0]),
+    .D1(tmds_shift_g[1]),
+    .SCLK(clk_125mhz),
+    .RST(0),
+    .Q(gpdi_dp[1])
+  );
+  ODDRX1F ddr_b(
+    .D0(tmds_shift_b[0]),
+    .D1(tmds_shift_b[1]),
+    .SCLK(clk_125mhz),
+    .RST(0),
+    .Q(gpdi_dp[0])
+  );
+  assign gpdi_dp[3] = clk_125mhz;
 
 endmodule
