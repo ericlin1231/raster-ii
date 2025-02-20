@@ -6,7 +6,7 @@ import chisel3.util._
 class DisplayController(timing: VideoTiming) extends Module {
   val io = IO(new Bundle {
     val rdAddr = Output(UInt())
-    val rdData = Input(UInt(8.W))
+    val rdData = Input(UInt(12.W))
     val r = Output(UInt(8.W))
     val g = Output(UInt(8.W))
     val b = Output(UInt(8.W))
@@ -26,7 +26,7 @@ class DisplayController(timing: VideoTiming) extends Module {
 
   io.r := Mux(RegNext(de), io.rdData(3, 0) << 4, 0.U)
   io.g := Mux(RegNext(de), io.rdData(7, 4) << 4, 0.U)
-  io.b := Mux(RegNext(de), 0.U, 0.U)
+  io.b := Mux(RegNext(de), io.rdData(11, 8) << 4, 0.U)
 
   val videoGenerator = Module(new VideoGenerator(timing))
   de := videoGenerator.io.ctrl.de
