@@ -22,5 +22,8 @@ synth: $(BUILDDIR)/Raster.sv $(BUILDDIR)/$(TARGET)
 prog: $(BUILDDIR)/Raster.sv $(BUILDDIR)/$(TARGET)
 	@make -C synth/$(TARGET) prog BUILDDIR=$(CURDIR)/$(BUILDDIR)/$(TARGET)
 
+flash: $(BUILDDIR)/Raster.sv $(BUILDDIR)/$(TARGET)
+	@make -C synth/$(TARGET) flash BUILDDIR=$(CURDIR)/$(BUILDDIR)/$(TARGET)
+
 clean:
 	@rm -rf $(BUILDDIR)

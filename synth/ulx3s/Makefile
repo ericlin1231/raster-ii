@@ -15,3 +15,6 @@ $(BUILDDIR)/raster.bit: $(BUILDDIR)/raster.config
 
 prog: $(BUILDDIR)/raster.bit
 	@openFPGALoader -b ulx3s $(BUILDDIR)/raster.bit
+
+flash: $(BUILDDIR)/raster.bit
+	@openFPGALoader -b ulx3s -f --unprotect-flash $(BUILDDIR)/raster.bit
