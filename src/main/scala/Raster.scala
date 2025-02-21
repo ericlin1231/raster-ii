@@ -1,7 +1,7 @@
 import chisel3._
 import circt.stage.ChiselStage
-import display._
 import chisel3.util.experimental.loadMemoryFromFile
+import display._
 
 class Raster extends Module {
   val io = IO(new Bundle {
@@ -22,8 +22,11 @@ class Raster extends Module {
     vback = 33
   )
   val (width, height) = (videoTiming.hactive, videoTiming.vactive)
-  val framebuffer = SyncReadMem(width * height, UInt(12.W))
-  loadMemoryFromFile(framebuffer, System.getProperty("user.dir") + "/assets/image.hex")
+  val framebuffer = SyncReadMem((width / 4) * (height / 4), new Bc1Block)
+  loadMemoryFromFile(
+    framebuffer,
+    System.getProperty("user.dir") + "/assets/image.hex"
+  )
 
   val displayController = Module(new DisplayController(videoTiming))
   displayController.io.rdData := framebuffer.read(displayController.io.rdAddr)
