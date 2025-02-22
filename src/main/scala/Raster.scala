@@ -23,10 +23,6 @@ class Raster extends Module {
   )
   val (width, height) = (videoTiming.hactive, videoTiming.vactive)
   val framebuffer = SyncReadMem((width / 4) * (height / 4), new Bc1Block)
-  loadMemoryFromFile(
-    framebuffer,
-    System.getProperty("user.dir") + "/assets/image.hex"
-  )
 
   val displayController = Module(new DisplayController(videoTiming))
   displayController.io.rdData := framebuffer.read(displayController.io.rdAddr)
@@ -34,6 +30,9 @@ class Raster extends Module {
   io.g := displayController.io.g
   io.b := displayController.io.b
   io.ctrl := displayController.io.ctrl
+
+  val patternGenerator = Module(new PatternGenerator(width, height))
+  framebuffer.write(patternGenerator.io.addr, patternGenerator.io.data)
 }
 
 object Raster extends App {
