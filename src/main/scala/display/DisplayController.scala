@@ -5,8 +5,8 @@ import chisel3.util._
 
 class DisplayController(timing: VideoTiming) extends Module {
   val io = IO(new Bundle {
-    val rdAddr = Output(UInt())
-    val rdData = Input(new Bc1Block)
+    val addr = Output(UInt())
+    val data = Input(new Bc1Block)
     val r = Output(UInt(8.W))
     val g = Output(UInt(8.W))
     val b = Output(UInt(8.W))
@@ -18,7 +18,7 @@ class DisplayController(timing: VideoTiming) extends Module {
   val xReg = RegInit(0.U(log2Up(width).W))
   val yReg = RegInit(0.U(2.W))
   val yAddrReg = RegInit(0.U(log2Up((width / 4) * (height / 4)).W))
-  io.rdAddr := yAddrReg + (xReg >> 2)
+  io.addr := yAddrReg + (xReg >> 2)
 
   when(de) {
     xReg := xReg + 1.U
@@ -36,7 +36,7 @@ class DisplayController(timing: VideoTiming) extends Module {
   }
 
   val bc1Decompressor = Module(new Bc1Decompressor)
-  bc1Decompressor.io.block := io.rdData
+  bc1Decompressor.io.block := io.data
   bc1Decompressor.io.x := RegNext(xReg(1, 0))
   bc1Decompressor.io.y := RegNext(yReg(1, 0))
 

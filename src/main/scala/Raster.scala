@@ -25,7 +25,7 @@ class Raster extends Module {
   val framebuffer = SyncReadMem((width / 4) * (height / 4), new Bc1Block)
 
   val displayController = Module(new DisplayController(videoTiming))
-  displayController.io.rdData := framebuffer.read(displayController.io.rdAddr)
+  displayController.io.data := framebuffer.read(displayController.io.addr)
   io.r := displayController.io.r
   io.g := displayController.io.g
   io.b := displayController.io.b

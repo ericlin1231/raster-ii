@@ -32,7 +32,7 @@ class Bc1Decompressor extends Module {
   g(3) := ((g(0) << 1) +& g(0)) + ((g(1) << 2) +& g(1)) >> 3
   b(3) := ((b(0) << 1) +& b(0)) + ((b(1) << 2) +& b(1)) >> 3
 
-  val index = io.block.indices(io.y)(io.x)
+  val index = io.block.indices((io.y << 2) + io.x)
   io.r := r(index)
   io.g := g(index)
   io.b := b(index)
