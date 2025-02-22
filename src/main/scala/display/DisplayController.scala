@@ -17,9 +17,7 @@ class DisplayController(timing: VideoTiming) extends Module {
   val de = Wire(Bool())
   val xReg = RegInit(0.U(log2Up(width).W))
   val yReg = RegInit(0.U(2.W))
-  val yAddrReg = RegInit(
-    0.U(unsignedBitLength((width / 4) * (height / 4 - 1)).W)
-  )
+  val yAddrReg = RegInit(0.U(log2Up((width / 4) * (height / 4)).W))
   io.rdAddr := yAddrReg + (xReg >> 2)
 
   when(de) {
@@ -42,9 +40,9 @@ class DisplayController(timing: VideoTiming) extends Module {
   bc1Decompressor.io.x := RegNext(xReg(1, 0))
   bc1Decompressor.io.y := RegNext(yReg(1, 0))
 
-  io.r := Mux(RegNext(de), bc1Decompressor.io.r << 3, 0.U)
-  io.g := Mux(RegNext(de), bc1Decompressor.io.g << 2, 0.U)
-  io.b := Mux(RegNext(de), bc1Decompressor.io.b << 3, 0.U)
+  io.r := Mux(RegNext(de), bc1Decompressor.io.r, 0.U)
+  io.g := Mux(RegNext(de), bc1Decompressor.io.g, 0.U)
+  io.b := Mux(RegNext(de), bc1Decompressor.io.b, 0.U)
 
   val videoGenerator = Module(new VideoGenerator(timing))
   de := videoGenerator.io.ctrl.de
