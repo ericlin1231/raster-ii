@@ -32,7 +32,9 @@ class Raster extends Module {
   io.ctrl := displayController.io.ctrl
 
   val patternGenerator = Module(new PatternGenerator(width, height))
-  framebuffer.write(patternGenerator.io.addr, patternGenerator.io.data)
+  when(patternGenerator.io.enable) {
+    framebuffer.write(patternGenerator.io.addr, patternGenerator.io.data)
+  }
 }
 
 object Raster extends App {

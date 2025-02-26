@@ -8,7 +8,7 @@ class Bc1Compressor extends Module {
     val start = Input(Bool())
     val ready = Output(Bool())
     val done = Output(Bool())
-    val addr = Output(UInt(log2Up(16).W))
+    val addr = Output(UInt(4.W))
     val data = Input(UInt(24.W))
     val block = Output(new Bc1Block)
   })
@@ -40,10 +40,10 @@ class Bc1Compressor extends Module {
       val g = io.data(15, 8)
       val b = io.data(7, 0)
       blockReg.c0 := r(7, 3) ## g(7, 2) ## b(7, 3)
-      blockReg.c1 := r(7, 3) ## g(7, 3) ## b(7, 3)
+      blockReg.c1 := r(7, 3) ## g(7, 2) ## b(7, 3)
       for (y <- 0 to 3) {
         for (x <- 0 to 3) {
-          blockReg.indices(4 * y + x) := 0.U
+          blockReg.indices((y << 2) + x) := 0.U
         }
       }
       stateReg := done
