@@ -14,7 +14,7 @@ class Bc1Compressor extends Module {
   })
 
   object State extends ChiselEnum {
-    val idle, read0, minmax, read1, indices = Value
+    val idle, read0, minmax, inset, read1, indices = Value
   }
   import State._
   val stateReg = RegInit(idle)
@@ -23,12 +23,12 @@ class Bc1Compressor extends Module {
   io.done := doneReg
 
   val addrReg = Reg(UInt(4.W))
-  val minColorReg = Reg(MixedVec(UInt(5.W), UInt(6.W), UInt(5.W)))
-  val maxColorReg = Reg(MixedVec(UInt(5.W), UInt(6.W), UInt(5.W)))
+  val minColorReg = Reg(Vec(3, UInt(8.W)))
+  val maxColorReg = Reg(Vec(3, UInt(8.W)))
   val indicesReg = Reg(Vec(16, UInt(2.W)))
   io.addr := addrReg
-  io.block.c0 := maxColorReg(0) ## maxColorReg(1) ## maxColorReg(2)
-  io.block.c1 := minColorReg(0) ## minColorReg(1) ## minColorReg(2)
+  io.block.c0 := maxColorReg(0)(7, 3) ## maxColorReg(1)(7, 2) ## maxColorReg(2)(7, 3)
+  io.block.c1 := minColorReg(0)(7, 3) ## minColorReg(1)(7, 2) ## minColorReg(2)(7, 3)
   io.block.indices := indicesReg
 
   switch(stateReg) {
@@ -47,11 +47,9 @@ class Bc1Compressor extends Module {
       stateReg := minmax
     }
     is(minmax) {
-      val colors = Wire(MixedVec(UInt(5.W), UInt(6.W), UInt(5.W)))
-      colors(0) := io.data(23, 19)
-      colors(1) := io.data(15, 10)
-      colors(2) := io.data(7, 3)
+      val colors = Wire(Vec(3, UInt(8.W)))
       for (i <- 0 to 2) {
+        colors(i) := io.data(23 - (i << 3), 16 - (i << 3))
         minColorReg(i) := Mux(
           colors(i) < minColorReg(i),
           colors(i),
@@ -67,10 +65,19 @@ class Bc1Compressor extends Module {
       addrReg := addrReg + 1.U
       when(addrReg === 15.U) {
         addrReg := 0.U
-        stateReg := indices
+        stateReg := inset
       }.otherwise {
         stateReg := read0
       }
+    }
+    is(inset) {
+      val inset = Wire(Vec(3, UInt(8.W)))
+      for (i <- 0 to 2) {
+        inset(i) := (maxColorReg(i) - minColorReg(i)) >> 4
+        minColorReg(i) := minColorReg(i) + inset(i)
+        maxColorReg(i) := maxColorReg(i) - inset(i)
+      }
+      stateReg := read1
     }
     is(read1) {
       io.addr := addrReg
@@ -81,13 +88,13 @@ class Bc1Compressor extends Module {
       val g = Wire(Vec(4, UInt(8.W)))
       val b = Wire(Vec(4, UInt(8.W)))
 
-      r(0) := maxColorReg(0) << 3 | maxColorReg(0)(4, 2)
-      g(0) := maxColorReg(1) << 2 | maxColorReg(1)(5, 4)
-      b(0) := maxColorReg(2) << 3 | maxColorReg(2)(4, 2)
+      r(0) := maxColorReg(0)(7, 3) << 3 | maxColorReg(0)(7, 5)
+      g(0) := maxColorReg(1)(7, 2) << 2 | maxColorReg(1)(7, 6)
+      b(0) := maxColorReg(2)(7, 3) << 3 | maxColorReg(2)(7, 5)
 
-      r(1) := minColorReg(0) << 3 | minColorReg(0)(4, 2)
-      g(1) := minColorReg(1) << 2 | minColorReg(1)(5, 4)
-      b(1) := minColorReg(2) << 3 | minColorReg(2)(4, 2)
+      r(1) := minColorReg(0)(7, 3) << 3 | minColorReg(0)(7, 5)
+      g(1) := minColorReg(1)(7, 2) << 2 | minColorReg(1)(7, 6)
+      b(1) := minColorReg(2)(7, 3) << 3 | minColorReg(2)(7, 5)
 
       r(2) := ((r(0) << 2) +& r(0)) + ((r(1) << 1) +& r(1)) >> 3
       g(2) := ((g(0) << 2) +& g(0)) + ((g(1) << 1) +& g(1)) >> 3
