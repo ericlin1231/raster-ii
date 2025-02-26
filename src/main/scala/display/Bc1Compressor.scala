@@ -27,8 +27,16 @@ class Bc1Compressor extends Module {
   val maxColorReg = Reg(Vec(3, UInt(8.W)))
   val indicesReg = Reg(Vec(16, UInt(2.W)))
   io.addr := addrReg
-  io.block.c0 := maxColorReg(0)(7, 3) ## maxColorReg(1)(7, 2) ## maxColorReg(2)(7, 3)
-  io.block.c1 := minColorReg(0)(7, 3) ## minColorReg(1)(7, 2) ## minColorReg(2)(7, 3)
+  io.block.c0 := Cat(
+    maxColorReg(0)(7, 3),
+    maxColorReg(1)(7, 2),
+    maxColorReg(2)(7, 3)
+  )
+  io.block.c1 := Cat(
+    minColorReg(0)(7, 3),
+    minColorReg(1)(7, 2),
+    minColorReg(2)(7, 3)
+  )
   io.block.indices := indicesReg
 
   switch(stateReg) {
@@ -38,26 +46,24 @@ class Bc1Compressor extends Module {
         stateReg := read0
         doneReg := false.B
         addrReg := 0.U
-        minColorReg := MixedVecInit(63.U, 127.U, 63.U)
-        maxColorReg := MixedVecInit(0.U, 0.U, 0.U)
+        minColorReg := VecInit(255.U, 255.U, 255.U)
+        maxColorReg := VecInit(0.U, 0.U, 0.U)
       }
     }
     is(read0) {
-      io.addr := addrReg
       stateReg := minmax
     }
     is(minmax) {
-      val colors = Wire(Vec(3, UInt(8.W)))
       for (i <- 0 to 2) {
-        colors(i) := io.data(23 - (i << 3), 16 - (i << 3))
+        val color = io.data(23 - (i << 3), 16 - (i << 3))
         minColorReg(i) := Mux(
-          colors(i) < minColorReg(i),
-          colors(i),
+          color < minColorReg(i),
+          color,
           minColorReg(i)
         )
         maxColorReg(i) := Mux(
-          colors(i) > maxColorReg(i),
-          colors(i),
+          color > maxColorReg(i),
+          color,
           maxColorReg(i)
         )
       }
@@ -80,7 +86,6 @@ class Bc1Compressor extends Module {
       stateReg := read1
     }
     is(read1) {
-      io.addr := addrReg
       stateReg := indices
     }
     is(indices) {
@@ -107,8 +112,8 @@ class Bc1Compressor extends Module {
       val d = Wire(Vec(4, SInt()))
       for (i <- 0 to 3) {
         d(i) :=
-          (r(i).zext - io.data(23, 16).zext).abs +
-            (g(i).zext - io.data(15, 8).zext).abs +
+          (r(i).zext - io.data(23, 16).zext).abs +&
+            (g(i).zext - io.data(15, 8).zext).abs +&
             (b(i).zext - io.data(7, 0).zext).abs
       }
 
