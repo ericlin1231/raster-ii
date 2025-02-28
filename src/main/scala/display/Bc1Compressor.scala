@@ -126,7 +126,7 @@ class Bc1Compressor extends Module {
       val x0 = b1 & b2
       val x1 = b0 & b3
       val x2 = b0 & b4
-      indicesReg(addrReg) := (x0 | x1) ## x2
+      indicesReg(addrReg) := Cat(x0 | x1, x2)
 
       addrReg := addrReg + 1.U
       when(addrReg === 15.U) {
