@@ -28,8 +28,8 @@ class PatternGenerator(width: Int, height: Int) extends Module {
 
   switch(stateReg) {
     is(compute) {
-      val r = xReg(7, 0)
-      val g = yReg(7, 0)
+      val r = ((xReg << 8) / width.U)(7, 0)
+      val g = ((yReg << 8) / height.U)(7, 0)
       val b = 0.U(8.W)
       tileMemory.write(Cat(yReg(1, 0), xReg(1, 0)), Cat(r, g, b))
 

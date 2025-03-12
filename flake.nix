@@ -22,8 +22,8 @@
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
             circt
-            nextpnr
             fujprog
+            nextpnr
             sbt
             scalafmt
             sdl3

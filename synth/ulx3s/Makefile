@@ -13,9 +13,11 @@ $(BUILDDIR)/raster.config: $(BUILDDIR)/raster.json ulx3s.lpf
 $(BUILDDIR)/raster.bit: $(BUILDDIR)/raster.config
 	@ecppack $< $@ --compress
 
-prog: $(BUILDDIR)/raster.bit
-	@fujprog $(BUILDDIR)/raster.bit
+$(BUILDDIR)/raster.svf: $(BUILDDIR)/raster.bit
+	@fujprog -s $@ $<
 
-flash: $(BUILDDIR)/raster.bit
-	@fujprog -s $(BUILDDIR)/raster.svf $(BUILDDIR)/raster.bit
-	@fujprog -j flash $(BUILDDIR)/raster.svf
+prog: $(BUILDDIR)/raster.bit
+	@fujprog $<
+
+flash: $(BUILDDIR)/raster.svf
+	@fujprog -j flash $<
