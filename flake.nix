@@ -23,7 +23,7 @@
           packages = with pkgs; [
             circt
             nextpnr
-            openfpgaloader
+            fujprog
             sbt
             scalafmt
             sdl3

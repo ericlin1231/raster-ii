@@ -7,3 +7,6 @@ target/
 .metals/
 .vscode/
 metals.sbt
+
+.envrc
+.direnv/

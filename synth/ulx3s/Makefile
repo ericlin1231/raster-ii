@@ -14,7 +14,8 @@ $(BUILDDIR)/raster.bit: $(BUILDDIR)/raster.config
 	@ecppack $< $@ --compress
 
 prog: $(BUILDDIR)/raster.bit
-	@openFPGALoader -b ulx3s $(BUILDDIR)/raster.bit
+	@fujprog $(BUILDDIR)/raster.bit
 
 flash: $(BUILDDIR)/raster.bit
-	@openFPGALoader -b ulx3s -f --unprotect-flash $(BUILDDIR)/raster.bit
+	@fujprog -s $(BUILDDIR)/raster.svf $(BUILDDIR)/raster.bit
+	@fujprog -j flash $(BUILDDIR)/raster.svf
