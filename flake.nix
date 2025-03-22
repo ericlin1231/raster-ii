@@ -21,13 +21,22 @@
       {
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
+            (python3.withPackages (pk: with pk; [
+                meson
+                sphinx
+                sphinxcontrib-wavedrom
+            ]))
+            libevent
+            cjson
             circt
             fujprog
             nextpnr
             sbt
             scalafmt
+            rustfmt
             sdl3
             trellis
+            svd2rust
             verilator
             yosys
           ];

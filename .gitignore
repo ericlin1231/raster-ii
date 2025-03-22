@@ -10,3 +10,9 @@ metals.sbt
 
 .envrc
 .direnv/
+
+lite*/
+litex_setup.py
+pythondata*/
+valentyusb/
+migen/
